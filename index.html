@@ -1,1 +1,1587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Math Adventure P.5</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#102238;
+  color:white;
+}
+
+button{
+  cursor:pointer;
+}
+
+/* HOME */
+
+#home{
+  min-height:100vh;
+  padding:25px;
+  background:linear-gradient(#102238,#14616b);
+}
+
+h1{
+  font-size:42px;
+  margin-bottom:5px;
+}
+
+.topbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin:20px 0;
+}
+
+.coin{
+  background:#f7b928;
+  color:#442b00;
+  padding:12px 18px;
+  border-radius:20px;
+  font-weight:bold;
+}
+
+.shopButton{
+  background:#7c3aed;
+  color:white;
+  border:0;
+  padding:12px 20px;
+  border-radius:12px;
+  font-weight:bold;
+}
+
+#nextChapter{
+  padding:12px 20px;
+  border:0;
+  border-radius:12px;
+  background:#0ea5e9;
+  color:white;
+  font-weight:bold;
+}
+
+#nextChapter:disabled{
+  background:#475569;
+}
+
+#levels{
+  max-width:1000px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(90px,1fr));
+  gap:10px;
+}
+
+.level{
+  padding:18px 5px;
+  border:0;
+  border-radius:12px;
+  font-weight:bold;
+  background:#d4dbe4;
+}
+
+.level.played{
+  background:#ffd633;
+}
+
+.level.done{
+  background:#22c55e;
+  color:white;
+}
+
+/* GAME */
+
+#game{
+  display:none;
+  height:100vh;
+  position:relative;
+  overflow:hidden;
+  background:#56a86c;
+}
+
+#hud{
+  position:absolute;
+  top:15px;
+  left:15px;
+  right:15px;
+
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+
+  z-index:5;
+}
+
+.hudBox{
+  background:#000b;
+  padding:10px 15px;
+  border-radius:20px;
+}
+
+#backHome{
+  position:absolute;
+  top:70px;
+  left:15px;
+  z-index:6;
+}
+
+#world{
+  width:100%;
+  height:100%;
+  position:relative;
+}
+
+.road{
+  position:absolute;
+  top:45%;
+  width:100%;
+  height:110px;
+  background:#d1b98c;
+}
+
+#player{
+  position:absolute;
+  left:8%;
+  top:47%;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:#2563eb;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  font-weight:bold;
+}
+
+#npc{
+  position:absolute;
+  right:10%;
+  top:47%;
+  width:55px;
+  height:55px;
+  border-radius:50%;
+  background:#ffd633;
+  color:#222;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  font-weight:bold;
+}
+
+/* QUIZ */
+
+#quiz{
+  display:none;
+
+  position:absolute;
+  inset:0;
+
+  background:#000b;
+
+  align-items:center;
+  justify-content:center;
+
+  padding:20px;
+
+  z-index:20;
+}
+
+.quizCard{
+  width:min(680px,100%);
+
+  background:white;
+  color:#111;
+
+  padding:25px;
+  border-radius:20px;
+}
+
+#question{
+  font-size:25px;
+  margin:20px 0;
+}
+
+#answer{
+  width:100%;
+  padding:15px;
+  font-size:20px;
+
+  border:2px solid #ccc;
+  border-radius:10px;
+}
+
+.actionRow{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:15px;
+}
+
+.actionRow button{
+  padding:12px 16px;
+  border:0;
+  border-radius:10px;
+  font-weight:bold;
+}
+
+#check{
+  background:#2563eb;
+  color:white;
+}
+
+#next{
+  display:none;
+  background:#22c55e;
+  color:white;
+}
+
+#useHint{
+  background:#ffd633;
+}
+
+#useChoice{
+  background:#9333ea;
+  color:white;
+}
+
+#feedback,
+#hintBox,
+#choiceBox{
+  margin-top:15px;
+  padding:12px;
+  border-radius:10px;
+}
+
+.correct{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.wrong{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+/* SHOP */
+
+#shop{
+  display:none;
+
+  position:fixed;
+  inset:0;
+
+  background:#000c;
+
+  align-items:center;
+  justify-content:center;
+
+  padding:20px;
+
+  z-index:50;
+}
+
+.shopPanel{
+  width:min(700px,100%);
+  background:white;
+  color:#111;
+
+  padding:25px;
+  border-radius:20px;
+}
+
+.shopItems{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
+
+.shopItem{
+  border:2px solid #ddd;
+  border-radius:15px;
+
+  padding:20px;
+  text-align:center;
+}
+
+.shopIcon{
+  font-size:75px;
+}
+
+.buy{
+  padding:10px 18px;
+  border:0;
+  border-radius:10px;
+
+  background:#22c55e;
+  color:white;
+  font-weight:bold;
+}
+
+/* MOBILE CONTROLS */
+
+#mobileControls{
+  display:none;
+
+  position:absolute;
+  bottom:20px;
+  left:20px;
+
+  grid-template-columns:60px 60px 60px;
+  gap:5px;
+
+  z-index:10;
+}
+
+.move{
+  height:55px;
+  border:0;
+  border-radius:12px;
+
+  background:#0009;
+  color:white;
+
+  font-size:20px;
+  font-weight:bold;
+}
+
+.w{
+  grid-column:2;
+}
+
+.a{
+  grid-column:1;
+}
+
+.s{
+  grid-column:2;
+}
+
+.d{
+  grid-column:3;
+}
+
+@media(max-width:800px){
+
+  #mobileControls{
+    display:grid;
+  }
+
+  .shopItems{
+    grid-template-columns:1fr;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<!-- HOME -->
+
+<div id="home">
+
+<h1>Math Adventure ป.5</h1>
+
+<p>Chapter 1 — Fractions</p>
+
+<p>
+⚪ Not played &nbsp;
+🟡 Played &nbsp;
+🟢 Completed
+</p>
+
+<div class="topbar">
+
+<div class="coin">
+🪙 Coins:
+<span id="coinsHome">0</span>
+</div>
+
+<button class="shopButton" id="openShop">
+🛒 Shop
+</button>
+
+<button id="nextChapter" disabled>
+🔒 Next Chapter
+</button>
+
+</div>
+
+<div id="levels"></div>
+
+</div>
+
+
+<!-- GAME -->
+
+<div id="game">
+
+<div id="hud">
+
+<div class="hudBox">
+Level <span id="currentLevel">1</span>/40
+</div>
+
+<div class="hudBox">
+🪙 <span id="coinsGame">0</span>
+</div>
+
+<div class="hudBox">
+💡 <span id="hintAmount">0</span>
+🎯 <span id="choiceAmount">0</span>
+</div>
+
+</div>
+
+<button id="backHome">← Home</button>
+
+<div id="world">
+
+<div class="road"></div>
+
+<div id="player">
+P5
+</div>
+
+<div id="npc">
+NPC
+</div>
+
+</div>
+
+
+<div id="mobileControls">
+
+<button class="move w" data-key="w">W</button>
+
+<button class="move a" data-key="a">A</button>
+
+<button class="move s" data-key="s">S</button>
+
+<button class="move d" data-key="d">D</button>
+
+</div>
+
+
+<!-- QUIZ -->
+
+<div id="quiz">
+
+<div class="quizCard">
+
+<h2 id="quizLevel"></h2>
+
+<div id="question"></div>
+
+<input
+id="answer"
+placeholder="Type your answer here"
+autocomplete="off"
+>
+
+<div class="actionRow">
+
+<button id="useHint">
+💡 Hint
+</button>
+
+<button id="useChoice">
+🎯 Choice
+</button>
+
+</div>
+
+<div id="hintBox"></div>
+
+<div id="choiceBox"></div>
+
+<div class="actionRow">
+
+<button id="check">
+Check Answer
+</button>
+
+<button id="next">
+Next Level
+</button>
+
+</div>
+
+<div id="feedback"></div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- SHOP -->
+
+<div id="shop">
+
+<div class="shopPanel">
+
+<h2>🛒 Math Adventure Shop</h2>
+
+<p>
+Coins:
+🪙 <b id="coinsShop">0</b>
+</p>
+
+<div class="shopItems">
+
+<div class="shopItem">
+
+<div class="shopIcon">
+💡❓
+</div>
+
+<h3>Hint</h3>
+
+<p>
+Shows a hint to help solve the question.
+</p>
+
+<h3>
+20 Coins
+</h3>
+
+<button class="buy" id="buyHint">
+Buy Hint
+</button>
+
+<p>
+Owned:
+<span id="shopHintAmount">0</span>
+</p>
+
+</div>
+
+
+<div class="shopItem">
+
+<div class="shopIcon">
+🅰️✅
+</div>
+
+<h3>Choice</h3>
+
+<p>
+Changes the question into 4 choices.
+</p>
+
+<h3>
+30 Coins
+</h3>
+
+<button class="buy" id="buyChoice">
+Buy Choice
+</button>
+
+<p>
+Owned:
+<span id="shopChoiceAmount">0</span>
+</p>
+
+</div>
+
+</div>
+
+<br>
+
+<button id="closeShop">
+Close Shop
+</button>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* QUESTIONS */
+
+const questions = [
+
+["1/2 กับ 3/4 จำนวนใดมากกว่า?","3/4","1/2 = 2/4 ดังนั้น 3/4 > 2/4"],
+
+["2/5 กับ 1/2 จำนวนใดมากกว่า?","1/2","2/5 = 4/10 และ 1/2 = 5/10"],
+
+["3/8 กับ 5/8 จำนวนใดมากกว่า?","5/8","ตัวส่วนเท่ากัน ตัวเศษที่มากกว่าจะมีค่ามากกว่า"],
+
+["7/10 กับ 3/5 จำนวนใดมากกว่า?","7/10","3/5 = 6/10 ดังนั้น 7/10 มากกว่า"],
+
+["เรียง 1/2, 3/4, 1/4 จากน้อยไปมาก","1/4,1/2,3/4","ทำเป็นส่วนสี่ จะได้ 1/4, 2/4, 3/4"],
+
+["1/3 + 1/3 = ?","2/3","ตัวส่วนเท่ากัน จึงบวกตัวเศษ"],
+
+["2/5 + 1/5 = ?","3/5","ตัวส่วนเท่ากัน บวกเฉพาะตัวเศษ"],
+
+["1/2 + 1/4 = ?","3/4","1/2 = 2/4 แล้ว 2/4 + 1/4 = 3/4"],
+
+["2/3 + 1/6 = ?","5/6","2/3 = 4/6 แล้ว +1/6 = 5/6"],
+
+["3/4 + 1/8 = ?","7/8","3/4 = 6/8 แล้ว +1/8 = 7/8"],
+
+["4/5 - 2/5 = ?","2/5","ตัวส่วนเท่ากัน ลบตัวเศษ"],
+
+["3/4 - 1/4 = ?","1/2","2/4 ย่อได้เป็น 1/2"],
+
+["5/6 - 1/3 = ?","1/2","1/3 = 2/6 แล้ว 5/6 - 2/6 = 3/6"],
+
+["7/8 - 1/2 = ?","3/8","1/2 = 4/8"],
+
+["1 1/2 + 1 1/4 = ?","1 3/4","1/2 = 2/4"],
+
+["2 1/3 + 1 1/3 = ?","3 2/3","บวกจำนวนเต็มและเศษส่วน"],
+
+["3 1/2 - 1 1/2 = ?","2","เศษส่วน 1/2 ลบกันหมด"],
+
+["4 3/4 - 2 1/4 = ?","2 1/2","3/4 - 1/4 = 1/2"],
+
+["1/2 × 6 = ?","3","ครึ่งหนึ่งของ 6 คือ 3"],
+
+["3/4 × 8 = ?","6","8 ÷ 4 × 3 = 6"],
+
+["2/5 × 10 = ?","4","10 ÷ 5 × 2 = 4"],
+
+["3/7 × 14 = ?","6","14 ÷ 7 × 3 = 6"],
+
+["1/2 × 1/3 = ?","1/6","คูณเศษกับเศษ และส่วนกับส่วน"],
+
+["2/3 × 3/4 = ?","1/2","6/12 ย่อเป็น 1/2"],
+
+["3/5 × 5/6 = ?","1/2","15/30 ย่อเป็น 1/2"],
+
+["2 1/2 × 2 = ?","5","2 1/2 = 5/2"],
+
+["ส่วนกลับของ 2/3 คืออะไร?","3/2","สลับตัวเศษกับตัวส่วน"],
+
+["ส่วนกลับของ 5/7 คืออะไร?","7/5","สลับตัวเศษกับตัวส่วน"],
+
+["1/2 ÷ 2 = ?","1/4","แบ่งครึ่งอีกครั้ง"],
+
+["3/4 ÷ 3 = ?","1/4","3/4 × 1/3 = 1/4"],
+
+["1/2 ÷ 1/4 = ?","2","ใน 1/2 มี 1/4 อยู่ 2 ส่วน"],
+
+["3/4 ÷ 1/4 = ?","3","ใน 3/4 มี 1/4 อยู่ 3 ส่วน"],
+
+["2/3 ÷ 1/3 = ?","2","ใน 2/3 มี 1/3 อยู่ 2 ส่วน"],
+
+["3/5 ÷ 2/5 = ?","3/2","3/5 × 5/2 = 3/2"],
+
+["พิซซ่า 1 ถาด กินไป 3/8 เหลือเท่าไร?","5/8","8/8 - 3/8 = 5/8"],
+
+["น้ำ 2 ลิตร ใช้ไป 3/4 ลิตร เหลือเท่าไร?","1 1/4","2 - 3/4 = 1 1/4"],
+
+["ขนม 12 ชิ้น กินไป 1/3 กินกี่ชิ้น?","4","12 ÷ 3 = 4"],
+
+["นักเรียน 20 คน เป็นผู้หญิง 3/5 มีกี่คน?","12","20 ÷ 5 × 3 = 12"],
+
+["เชือกยาว 6 เมตร ใช้ไป 2/3 ใช้กี่เมตร?","4","6 ÷ 3 × 2 = 4"],
+
+["หนังสือ 24 เล่ม เป็นนิทาน 3/8 มีกี่เล่ม?","9","24 ÷ 8 × 3 = 9"]
+
+];
+
+
+/* GAME STATE */
+
+let level = 0;
+
+let coins =
+Number(localStorage.getItem("coins") || 0);
+
+let hints =
+Number(localStorage.getItem("hints") || 0);
+
+let choices =
+Number(localStorage.getItem("choices") || 0);
+
+let played =
+new Set(
+JSON.parse(
+localStorage.getItem("played") || "[]"
+)
+);
+
+let completed =
+new Set(
+JSON.parse(
+localStorage.getItem("completed") || "[]"
+)
+);
+
+let rewarded =
+new Set(
+JSON.parse(
+localStorage.getItem("rewarded") || "[]"
+)
+);
+
+
+/* ELEMENTS */
+
+const home =
+document.getElementById("home");
+
+const game =
+document.getElementById("game");
+
+const levels =
+document.getElementById("levels");
+
+const quiz =
+document.getElementById("quiz");
+
+const player =
+document.getElementById("player");
+
+const npc =
+document.getElementById("npc");
+
+const answer =
+document.getElementById("answer");
+
+const feedback =
+document.getElementById("feedback");
+
+const hintBox =
+document.getElementById("hintBox");
+
+const choiceBox =
+document.getElementById("choiceBox");
+
+
+/* SAVE */
+
+function save(){
+
+localStorage.setItem(
+"coins",
+coins
+);
+
+localStorage.setItem(
+"hints",
+hints
+);
+
+localStorage.setItem(
+"choices",
+choices
+);
+
+localStorage.setItem(
+"played",
+JSON.stringify([...played])
+);
+
+localStorage.setItem(
+"completed",
+JSON.stringify([...completed])
+);
+
+localStorage.setItem(
+"rewarded",
+JSON.stringify([...rewarded])
+);
+
+}
+
+
+/* UI */
+
+function updateUI(){
+
+document.getElementById("coinsHome").textContent =
+coins;
+
+document.getElementById("coinsGame").textContent =
+coins;
+
+document.getElementById("coinsShop").textContent =
+coins;
+
+document.getElementById("hintAmount").textContent =
+hints;
+
+document.getElementById("choiceAmount").textContent =
+choices;
+
+document.getElementById("shopHintAmount").textContent =
+hints;
+
+document.getElementById("shopChoiceAmount").textContent =
+choices;
+
+
+levels.innerHTML = "";
+
+
+questions.forEach((q,i)=>{
+
+const button =
+document.createElement("button");
+
+button.className =
+"level";
+
+
+if(completed.has(i)){
+
+button.classList.add("done");
+
+button.textContent =
+"✓ Level " + (i+1);
+
+}
+
+else if(played.has(i)){
+
+button.classList.add("played");
+
+button.textContent =
+"Level " + (i+1);
+
+}
+
+else{
+
+button.textContent =
+"Level " + (i+1);
+
+}
+
+
+button.onclick =
+()=> startLevel(i);
+
+
+levels.appendChild(button);
+
+});
+
+
+/* Unlock after ALL 40 questions have been answered */
+
+const nextChapter =
+document.getElementById("nextChapter");
+
+if(played.size === 40){
+
+nextChapter.disabled = false;
+
+nextChapter.textContent =
+"➡ Next Chapter";
+
+}
+
+else{
+
+nextChapter.disabled = true;
+
+nextChapter.textContent =
+"🔒 Next Chapter";
+
+}
+
+}
+
+
+/* PLAYER */
+
+let playerX = 8;
+
+let playerY = 47;
+
+
+function drawPlayer(){
+
+player.style.left =
+playerX + "%";
+
+player.style.top =
+playerY + "%";
+
+}
+
+
+function startLevel(i){
+
+level = i;
+
+home.style.display =
+"none";
+
+game.style.display =
+"block";
+
+quiz.style.display =
+"none";
+
+document.getElementById("currentLevel").textContent =
+i+1;
+
+
+playerX = 8;
+
+playerY = 47;
+
+drawPlayer();
+
+}
+
+
+/* KEYBOARD MOVEMENT */
+
+document.addEventListener(
+"keydown",
+event=>{
+
+if(
+game.style.display !== "block"
+||
+quiz.style.display === "flex"
+)
+return;
+
+
+const key =
+event.key.toLowerCase();
+
+
+if(key === "w"){
+
+playerY -= 3;
+
+}
+
+if(key === "s"){
+
+playerY += 3;
+
+}
+
+if(key === "a"){
+
+playerX -= 3;
+
+}
+
+if(key === "d"){
+
+playerX += 3;
+
+}
+
+
+playerX =
+Math.max(
+0,
+Math.min(
+90,
+playerX
+)
+);
+
+playerY =
+Math.max(
+10,
+Math.min(
+80,
+playerY
+)
+);
+
+
+drawPlayer();
+
+checkNPC();
+
+});
+
+
+/* MOBILE MOVEMENT */
+
+document.querySelectorAll(".move")
+.forEach(button=>{
+
+button.onclick =
+()=>{
+
+const key =
+button.dataset.key;
+
+
+if(key === "w")
+playerY -= 4;
+
+if(key === "s")
+playerY += 4;
+
+if(key === "a")
+playerX -= 4;
+
+if(key === "d")
+playerX += 4;
+
+
+drawPlayer();
+
+checkNPC();
+
+};
+
+});
+
+
+/* NPC COLLISION */
+
+function checkNPC(){
+
+if(
+playerX > 75
+&&
+playerY > 35
+&&
+playerY < 65
+){
+
+openQuestion();
+
+}
+
+}
+
+
+/* QUESTION */
+
+function openQuestion(){
+
+quiz.style.display =
+"flex";
+
+const q =
+questions[level];
+
+
+document.getElementById("quizLevel").textContent =
+"Level " + (level+1);
+
+document.getElementById("question").textContent =
+q[0];
+
+answer.value = "";
+
+answer.disabled = false;
+
+feedback.innerHTML = "";
+
+hintBox.innerHTML = "";
+
+choiceBox.innerHTML = "";
+
+document.getElementById("check").style.display =
+"block";
+
+document.getElementById("next").style.display =
+"none";
+
+}
+
+
+/* NORMALIZE */
+
+function clean(value){
+
+return value
+.toLowerCase()
+.replaceAll(" ","")
+.replaceAll(",","")
+.replaceAll("ชิ้น","")
+.replaceAll("คน","")
+.replaceAll("เมตร","")
+.replaceAll("ลิตร","")
+.replaceAll("เล่ม","");
+
+}
+
+
+/* CHECK ANSWER */
+
+document.getElementById("check")
+.onclick = ()=>{
+
+if(
+answer.value.trim() === ""
+){
+
+feedback.className =
+"wrong";
+
+feedback.textContent =
+"Please type an answer first.";
+
+return;
+
+}
+
+
+played.add(level);
+
+
+const correctAnswer =
+questions[level][1];
+
+
+let isCorrect =
+clean(answer.value)
+===
+clean(correctAnswer);
+
+
+/* alternate answers */
+
+if(
+level === 14
+&&
+answer.value === "1.75"
+)
+isCorrect = true;
+
+
+if(
+level === 17
+&&
+answer.value === "2.5"
+)
+isCorrect = true;
+
+
+if(
+level === 33
+&&
+(
+answer.value === "1.5"
+||
+answer.value === "1 1/2"
+)
+)
+isCorrect = true;
+
+
+if(
+level === 35
+&&
+answer.value === "1.25"
+)
+isCorrect = true;
+
+
+if(isCorrect){
+
+completed.add(level);
+
+
+if(
+!rewarded.has(level)
+){
+
+coins += 10;
+
+rewarded.add(level);
+
+}
+
+
+feedback.className =
+"correct";
+
+feedback.innerHTML =
+"✅ Correct! +10 Coins<br><br>"
++
+"<b>Why:</b> "
++
+questions[level][2];
+
+}
+
+else{
+
+feedback.className =
+"wrong";
+
+feedback.innerHTML =
+"❌ Incorrect<br><br>"
++
+"Correct answer: <b>"
++
+correctAnswer
++
+"</b><br><br>"
++
+"<b>Why:</b> "
++
+questions[level][2];
+
+}
+
+
+answer.disabled = true;
+
+document.getElementById("check")
+.style.display =
+"none";
+
+document.getElementById("next")
+.style.display =
+"block";
+
+
+save();
+
+updateUI();
+
+};
+
+
+/* NEXT */
+
+document.getElementById("next")
+.onclick = ()=>{
+
+if(level < 39){
+
+startLevel(
+level + 1
+);
+
+}
+
+else{
+
+game.style.display =
+"none";
+
+home.style.display =
+"block";
+
+updateUI();
+
+}
+
+};
+
+
+/* HOME */
+
+document.getElementById("backHome")
+.onclick = ()=>{
+
+game.style.display =
+"none";
+
+home.style.display =
+"block";
+
+updateUI();
+
+};
+
+
+/* SHOP */
+
+document.getElementById("openShop")
+.onclick = ()=>{
+
+document.getElementById("shop")
+.style.display =
+"flex";
+
+updateUI();
+
+};
+
+
+document.getElementById("closeShop")
+.onclick = ()=>{
+
+document.getElementById("shop")
+.style.display =
+"none";
+
+};
+
+
+/* BUY HINT */
+
+document.getElementById("buyHint")
+.onclick = ()=>{
+
+if(coins < 20){
+
+alert(
+"You need 20 coins."
+);
+
+return;
+
+}
+
+coins -= 20;
+
+hints += 1;
+
+save();
+
+updateUI();
+
+};
+
+
+/* BUY CHOICE */
+
+document.getElementById("buyChoice")
+.onclick = ()=>{
+
+if(coins < 30){
+
+alert(
+"You need 30 coins."
+);
+
+return;
+
+}
+
+coins -= 30;
+
+choices += 1;
+
+save();
+
+updateUI();
+
+};
+
+
+/* USE HINT */
+
+document.getElementById("useHint")
+.onclick = ()=>{
+
+if(hints <= 0){
+
+alert(
+"Buy a Hint from the shop first."
+);
+
+return;
+
+}
+
+hints -= 1;
+
+
+let question =
+questions[level][0];
+
+
+let hint =
+"Think carefully about the operation.";
+
+
+if(
+question.includes("ส่วนกลับ")
+){
+
+hint =
+"Swap the numerator and denominator.";
+
+}
+
+else if(
+question.includes("÷")
+){
+
+hint =
+"Try multiplying by the reciprocal.";
+
+}
+
+else if(
+question.includes("×")
+){
+
+hint =
+"Multiply numerator × numerator and denominator × denominator.";
+
+}
+
+else if(
+question.includes("+")
+||
+question.includes("-")
+){
+
+hint =
+"Make the denominators equal first.";
+
+}
+
+
+hintBox.innerHTML =
+"💡 <b>Hint:</b> "
++
+hint;
+
+
+save();
+
+updateUI();
+
+};
+
+
+/* USE CHOICE */
+
+document.getElementById("useChoice")
+.onclick = ()=>{
+
+if(choices <= 0){
+
+alert(
+"Buy Choice from the shop first."
+);
+
+return;
+
+}
+
+choices -= 1;
+
+
+const correct =
+questions[level][1];
+
+
+let choicesArray = [
+
+correct,
+
+"1/2",
+
+"2/3",
+
+"3/4"
+
+];
+
+
+choicesArray =
+[...new Set(choicesArray)];
+
+
+while(
+choicesArray.length < 4
+){
+
+choicesArray.push(
+String(
+choicesArray.length + 2
+)
+);
+
+}
+
+
+choiceBox.innerHTML =
+"<b>🎯 Choose an answer:</b><br>";
+
+
+choicesArray
+.slice(0,4)
+.forEach(value=>{
+
+const button =
+document.createElement("button");
+
+button.textContent =
+value;
+
+button.style.margin =
+"5px";
+
+button.style.padding =
+"10px 15px";
+
+button.style.borderRadius =
+"8px";
+
+button.onclick =
+()=>{
+
+answer.value =
+value;
+
+};
+
+
+choiceBox.appendChild(
+button
+);
+
+});
+
+
+save();
+
+updateUI();
+
+};
+
+
+/* NEXT CHAPTER */
+
+document.getElementById("nextChapter")
+.onclick = ()=>{
+
+if(
+played.size === 40
+){
+
+alert(
+"🎉 Chapter 2 unlocked!"
+);
+
+}
+
+};
+
+
+/* START */
+
+updateUI();
+
+drawPlayer();
+
+</script>
+
+</body>
+</html>
